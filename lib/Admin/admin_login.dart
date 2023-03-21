@@ -31,6 +31,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             'admin_password':passwordController.text.trim(),
           }
       );
+      print(res.body);
       if(res.statusCode == 200){
         var resBodyLogIn = jsonDecode(res.body);
         print(resBodyLogIn);
