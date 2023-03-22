@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pizzeria/Admin/admin_login.dart';
 class AdminUploadItemScreen extends StatefulWidget {
   const AdminUploadItemScreen({Key? key}) : super(key: key);
 
@@ -83,25 +84,450 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
           );
         });
   }
+  var formKey = GlobalKey<FormState>();
+  var nameController = TextEditingController();
+  var ratingController = TextEditingController();
+  var tagsController = TextEditingController();
+  var priceController = TextEditingController();
+  var sizeController = TextEditingController();
+  var baseController = TextEditingController();
+  var descriptionController = TextEditingController();
+  var imageLink = "";
   Widget pickedScreen(){
     return Scaffold(
-      backgroundColor: Colors.black87,
-      body: ListView(
-        children: <Widget>[
-          Container(
-            width: MediaQuery.of(context).size.width * 75/100,
-            height: MediaQuery.of(context).size.height * 25/100,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              image: DecorationImage(
-                image: FileImage(
-                    File(pickedImage!.path)
-                ),
-                fit: BoxFit.cover,
-              )
-            ),
-          )
+      backgroundColor: Colors.black38,
+      appBar: AppBar(
+        title: const Text("Upload",),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {Get.to(AdminLoginScreen());},
+        ),
+        actions: [
+          TextButton(
+              onPressed: (){},
+              child: const Text("Publish",style: TextStyle(color: Colors.deepPurple),),),
         ],
+        automaticallyImplyLeading: false,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: [Colors.deepPurple,Colors.purpleAccent])
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+              begin : Alignment.topCenter,
+              end :Alignment.bottomCenter,
+              colors: [Colors.deepPurple,Colors.purpleAccent]
+          ),
+        ),
+        child: ListView(
+          children: <Widget>[
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 25/100,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                image: DecorationImage(
+                  image: FileImage(
+                      File(pickedImage!.path)
+                  ),
+                  fit: BoxFit.cover,
+                )
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(60),
+                  ),
+                  boxShadow: [BoxShadow(
+                    blurRadius: 0,
+                    color: Colors.black26,
+                    offset: Offset(0,-3),
+                  )],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Form(
+                      key: formKey,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(30,30,30,5),
+                        child: Column(
+                          children: <Widget>[
+                            //name
+                            TextFormField(
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: nameController,
+                              obscureText: false,
+                              validator: (val){
+                                val == ""?"Enter Item Name":null;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.title_outlined,
+                                  color: Colors.black,
+                                ),
+                                hintText: "Enter Item Name",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 30,
+                                ),
+                                fillColor: Colors.white,
+                                filled:true,
+                              ),
+                            ),
+                            const SizedBox(height: 20.0,),
+                            //rating
+                            TextFormField(
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: ratingController,
+                              obscureText: false,
+                              validator: (val){
+                                val == ""?"Enter Item Rating":null;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.star_border_outlined ,
+                                  color: Colors.black,
+                                ),
+                                hintText: "Enter Item Rating",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 30,
+                                ),
+                                fillColor: Colors.white,
+                                filled:true,
+                              ),
+                            ),
+                            const SizedBox(height: 20.0,),
+                            //tags
+                            TextFormField(
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: tagsController,
+                              obscureText: false,
+                              validator: (val){
+                                val == ""?"Enter Item Tags":null;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.tag_outlined,
+                                  color: Colors.black,
+                                ),
+                                hintText: "Enter Item tags",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 30,
+                                ),
+                                fillColor: Colors.white,
+                                filled:true,
+                              ),
+                            ),
+                            const SizedBox(height: 20.0,),
+                            //price
+                            TextFormField(
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: priceController,
+                              obscureText: false,
+                              validator: (val){
+                                val == ""?"Enter Item Price":null;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.price_change_outlined,
+                                  color: Colors.black,
+                                ),
+                                hintText: "Enter Item Price",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 30,
+                                ),
+                                fillColor: Colors.white,
+                                filled:true,
+                              ),
+                            ),
+                            const SizedBox(height: 20.0,),
+                            //item Size S M L
+                            TextFormField(
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: sizeController,
+                              obscureText: false,
+                              validator: (val){
+                                val == ""?"Enter Item Sizes":null;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.picture_in_picture_outlined,
+                                  color: Colors.black,
+                                ),
+                                hintText: "Enter Item Sizes",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 30,
+                                ),
+                                fillColor: Colors.white,
+                                filled:true,
+                              ),
+                            ),
+                            const SizedBox(height: 20.0,),
+                            //item Base PAN,HANDTOSSED
+                            TextFormField(
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: baseController,
+                              obscureText: false,
+                              validator: (val){
+                                val == ""?"Enter Item Base":null;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.local_pizza_outlined,
+                                  color: Colors.black,
+                                ),
+                                hintText: "Enter Item Base",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 30,
+                                ),
+                                fillColor: Colors.white,
+                                filled:true,
+                              ),
+                            ),
+                            const SizedBox(height: 20.0,),
+                            //item description
+                            TextFormField(
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: descriptionController,
+                              obscureText: false,
+                              validator: (val){
+                                val == ""?"Enter Item Description":null;
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  Icons.rate_review_outlined,
+                                  color: Colors.black,
+                                ),
+                                hintText: "Enter Item Description",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 30,
+                                ),
+                                fillColor: Colors.white,
+                                filled:true,
+                              ),
+                            ),
+                            const SizedBox(height: 20.0,),
+                            Material(
+                              color:Colors.black38,
+                              borderRadius: BorderRadius.circular(30),
+                              child: InkWell(
+                                onTap: (){
+                                },
+                                borderRadius: BorderRadius.circular(30),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                                  child: Text(
+                                    "Upload Now",
+                                    style: TextStyle(
+                                      color:Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10.0,),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
