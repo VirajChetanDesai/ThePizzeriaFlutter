@@ -87,10 +87,13 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         height: 300,
-                        child: const Icon(
-                          Icons.local_pizza_outlined,
-                          color: Colors.white,
-                          size: 250,
+                        child: Hero(
+                          tag: 'fire',
+                          child: Icon(
+                            Icons.local_pizza_outlined,
+                            color: Colors.white,
+                            size: 250,
+                          ),
                         ),
                       ),
                     ),

@@ -1,11 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pizzeria/Users/Authentication/login_screen.dart';
 import 'package:pizzeria/Users/fragments/dashboard_fragments.dart';
+import 'package:pizzeria/firebase_options.dart';
 import 'package:pizzeria/user_preferences/user_preferences.dart';
 
-void main() {
+void main()async{
   WidgetsFlutterBinding.ensureInitialized();
+  try{
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }catch(e){
+    print("Error ${e}");
+  }
   runApp(Pizzeria());
 }
 

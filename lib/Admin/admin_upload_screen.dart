@@ -5,6 +5,26 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pizzeria/Admin/admin_login.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
+
+
+Future<String> hostImage(XFile? file) async {
+
+  String imageUrl = '';
+    String uniqueName = DateTime.now().toString().trim();
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImages = referenceRoot.child('images');
+    Reference referenceImageToUpload = referenceDirImages.child(uniqueName);
+    try{
+      await referenceImageToUpload.putFile(File(file!.path));
+      imageUrl = await referenceImageToUpload.getDownloadURL();
+    }catch(e){
+      Fluttertoast.showToast(msg: "Error Uploading Image");
+    }
+    return imageUrl;
+}
+
 class AdminUploadItemScreen extends StatefulWidget {
   const AdminUploadItemScreen({Key? key}) : super(key: key);
 
@@ -502,7 +522,11 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
                               color:Colors.black38,
                               borderRadius: BorderRadius.circular(30),
                               child: InkWell(
-                                onTap: (){
+                                onTap: ()async{
+                                  if(pickedImage!=null){
+                                    String txt =  await hostImage(pickedImage);
+                                    Fluttertoast.showToast(msg: txt);
+                                  }
                                 },
                                 borderRadius: BorderRadius.circular(30),
                                 child: const Padding(
@@ -563,8 +587,9 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
                 icon: Icon(Icons.add,),
                 color: Colors.white,
                 iconSize: 100,
-                onPressed: () {
-                  imagePicker();
+                onPressed: () async {
+                  String xyz = await imagePicker();
+                  Fluttertoast.showToast(msg: xyz);
                 },
               ),
               Text('Add New Item',style: TextStyle(color: Colors.white70),),

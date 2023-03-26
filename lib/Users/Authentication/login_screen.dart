@@ -70,10 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: 300,
-                      child:const Icon(
-                        Icons.local_pizza_outlined,
-                        color: Colors.white,
-                        size: 250,
+                      child:const Hero(
+                        tag: 'fire',
+                        child: Icon(
+                          Icons.local_pizza_outlined,
+                          color: Colors.white,
+                          size: 250,
+                        ),
                       ),
                     ),
                   ),
