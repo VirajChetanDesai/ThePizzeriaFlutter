@@ -1,13 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pizzeria/Admin/admin_login.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
-
+import 'package:pizzeria/api_connection/api_connection.dart';
 
 Future<String> hostImage(XFile? file) async {
 
@@ -113,6 +113,48 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
   var baseController = TextEditingController();
   var descriptionController = TextEditingController();
   var imageLink = "";
+  saveToDatabase()async{
+    List<String> tagsList = tagsController.text.split(',');
+    List<String> sizeList = sizeController.text.split(',');
+    List<String> baseList = baseController.text.split(',');
+    try{
+      var response = await http.post(
+        Uri.parse(API.upload),
+        body: {
+          "name": nameController.text.trim().toString(),
+          "rating": ratingController.text.trim().toString(),
+          "tags": tagsList.toString(),
+          "price": priceController.text.trim().toString(),
+          "sizes": sizeList.toString(),
+          "base": baseList.toString(),
+          "description":  descriptionController.text.trim().toString(),
+          "image":  imageLink,
+        },
+      );
+      if (response.statusCode == 200){
+        var resBody = jsonDecode(response.body);
+        if(resBody['success']==true) {
+          Fluttertoast.showToast(msg: "Successful Upload");
+          setState(() {
+            pickedImage = null;
+            nameController.clear();
+            ratingController.clear();
+            tagsController.clear();
+            priceController.clear();
+            sizeController.clear();
+            baseController.clear();
+            descriptionController.clear();
+            imageLink = "";
+          });
+        }else{
+          Fluttertoast.showToast(msg: "Failed Upload");
+        }
+      }
+    }catch(e){
+      print('Error ${e}');
+    }
+  }
+
   Widget pickedScreen(){
     return Scaffold(
       backgroundColor: Colors.black38,
@@ -473,7 +515,7 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
                             //item description
                             TextFormField(
                               textAlign: TextAlign.left,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                               ),
                               controller: descriptionController,
@@ -523,9 +565,11 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
                               borderRadius: BorderRadius.circular(30),
                               child: InkWell(
                                 onTap: ()async{
-                                  if(pickedImage!=null){
-                                    String txt =  await hostImage(pickedImage);
-                                    Fluttertoast.showToast(msg: txt);
+                                  if(pickedImage!=null && nameController.text != "" && ratingController.text != "" && tagsController.text != "" && priceController.text!= "" && sizeController.text!= "" && baseController.text!=""){
+                                    imageLink =  await hostImage(pickedImage);
+                                    await saveToDatabase();
+                                  }else{
+                                    Fluttertoast.showToast(msg: "Please enter all fields");
                                   }
                                 },
                                 borderRadius: BorderRadius.circular(30),
@@ -588,11 +632,10 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
                 color: Colors.white,
                 iconSize: 100,
                 onPressed: () async {
-                  String xyz = await imagePicker();
-                  Fluttertoast.showToast(msg: xyz);
+                  await imagePicker();
                 },
               ),
-              Text('Add New Item',style: TextStyle(color: Colors.white70),),
+              const Text('Add New Item',style: TextStyle(color: Colors.white70),),
             ],
           ),
         ),
