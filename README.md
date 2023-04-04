@@ -1,17 +1,21 @@
-# pizzeria
 
-A new Flutter project.
+# Pizzeria
 
-## Getting Started
+Flutter based application , using firebase and Mysql for data storage and php as backend using XAMPP server.
 
-This project is a starting point for a Flutter application.
+## Features
+Greeted with a login / sign up page for users , and also can be redirected to adminstrator login.
 
-A few resources to get you started if this is your first Flutter project:
+Has functionality to signup in using php API which sends required information to store in mysql.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Using another API we retrieve the information from mysql to check and authenticate existing user allowing them inside the application.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-"# ThePizzeriaFlutter" 
+Similarly an adminstrator can login but not sign up into the application for security purposes.
+
+The adminstrator has the ability to perform all CRUD operations
+which include the ability to add new items into the menu , remove items from the menu and update the prices .
+
+In order to maintain the size of the application all images are hosted on firebase from the admin upload screen , and retrieved using php whenever required.
+
+The User has the ability to check all the products available and customise their order.
+
