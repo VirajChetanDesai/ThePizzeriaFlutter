@@ -235,7 +235,7 @@ class HomeFragmentScreen extends StatelessWidget {
         }
         if(dataSnapshot.data!.length > 0){
           return Container(
-            height: 265,
+            height: 262,
             child: ListView.builder(
                 itemCount: dataSnapshot.data!.length,
                 scrollDirection: Axis.horizontal,
@@ -255,10 +255,10 @@ class HomeFragmentScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: [const BoxShadow(
+                        boxShadow: const [BoxShadow(
                           offset: Offset(0,5),
                           blurRadius: 0,
-                          color: Colors.black26,
+                          color: Color(0xFFC4C4C4),
                         ),]
                       ),
                       child: Column(
@@ -308,8 +308,8 @@ class HomeFragmentScreen extends StatelessWidget {
                                       child: Text(eachItem.pizza_name!,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold
-                                        ),
+                                        style: const TextStyle(color: Colors.black,fontSize: 13),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                     ),
@@ -333,7 +333,7 @@ class HomeFragmentScreen extends StatelessWidget {
                                         ),
                                         child: Center(
                                           child: Text("INR "+eachItem.price!.toString(),
-                                            style: const TextStyle(color: Colors.white,fontSize: 14,fontWeight: FontWeight.bold
+                                            style: const TextStyle(color: Colors.white,fontSize: 13
                                             ),
                                           ),
                                         ),
@@ -341,14 +341,14 @@ class HomeFragmentScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 7,),
+                                const SizedBox(height: 10,),
                                 Container(
                                   width: width/2,
-                                  height: width/10,
+                                  height: width/12,
                                   padding: EdgeInsets.all(height * 0.01),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     boxShadow: const [
                                       BoxShadow(
                                         blurRadius: 0,
@@ -375,12 +375,12 @@ class HomeFragmentScreen extends StatelessWidget {
                                         onRatingUpdate: (updateRating){
 
                                         },
-                                        itemSize: 20,
+                                        itemSize: 16,
                                         ignoreGestures: true,
                                         unratedColor: Colors.grey,
                                       ),
                                       const SizedBox(width: 10,),
-                                      Text("${eachItem!.rating}",style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w200),),
+                                      Text("${eachItem!.rating}",style: const TextStyle(fontSize: 11,color: Colors.grey,fontWeight: FontWeight.w200),),
                                     ],
                                   )
                                 ),
