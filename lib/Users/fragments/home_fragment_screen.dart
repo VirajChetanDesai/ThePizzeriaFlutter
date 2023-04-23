@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pizzeria/Users/Item/ItemDetails.dart';
 import 'package:pizzeria/Users/model/item.dart';
 import 'package:http/http.dart' as http;
 import 'package:pizzeria/api_connection/api_connection.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 /* Counter code
 void _increment() {
     setState(() {
@@ -50,6 +52,54 @@ child: Center(
                               ),
                             ),
  */
+
+Future<List> getTrendingItems()async{
+  List<Item>? trendingList =[];
+  try{
+    var res = await http.post(
+      Uri.parse(API.trending),
+    );
+    if(res.statusCode == 200){
+      var responseBodyTrending = jsonDecode(res.body);
+      if(responseBodyTrending["success"] == true){
+        for (var element in (responseBodyTrending["itemsData"] as List)) {
+          trendingList.add(Item.fromJson(element));
+        }
+      }
+    }
+    else{
+      Fluttertoast.showToast(msg: "Error: trending");
+    }
+  }
+  catch(e){
+    print("Error + ${e}");
+  }
+  return trendingList;
+}
+Future<List> getAllItems()async{
+  List<Item> fullList = [];
+  try{
+    var res = await http.post(
+      Uri.parse(API.retrieve),
+    );
+    if(res.statusCode == 200){
+      var responseBodyTrending = jsonDecode(res.body);
+      if(responseBodyTrending["success"] == true){
+        (responseBodyTrending["itemsData"] as List).forEach((element) {
+          fullList.add(Item.fromJson(element));
+        });
+      }
+    }
+    else{
+      Fluttertoast.showToast(msg: "Error: trending");
+    }
+  }
+  catch(e){
+    print("Error + ${e}");
+  }
+  return fullList;
+}
+
 class dropDown extends StatefulWidget {
   List<String> _dropdownItems;
   String selected;
@@ -98,53 +148,6 @@ class _dropDown extends State<dropDown> {
 
 class HomeFragmentScreen extends StatelessWidget {
   TextEditingController searchController = TextEditingController();
-  Future<List> getTrendingItems()async{
-    List<Item>? trendingList =[];
-    try{
-      var res = await http.post(
-        Uri.parse(API.trending),
-      );
-      if(res.statusCode == 200){
-        var responseBodyTrending = jsonDecode(res.body);
-        if(responseBodyTrending["success"] == true){
-          for (var element in (responseBodyTrending["itemsData"] as List)) {
-            trendingList.add(Item.fromJson(element));
-          }
-        }
-      }
-      else{
-        Fluttertoast.showToast(msg: "Error: trending");
-      }
-    }
-    catch(e){
-      print("Error + ${e}");
-    }
-    return trendingList;
-  }
-  Future<List> getAllItems()async{
-    List<Item> fullList = [];
-    try{
-      var res = await http.post(
-        Uri.parse(API.retrieve),
-      );
-      print(res.body);
-      if(res.statusCode == 200){
-        var responseBodyTrending = jsonDecode(res.body);
-        if(responseBodyTrending["success"] == true){
-          (responseBodyTrending["itemsData"] as List).forEach((element) {
-            fullList.add(Item.fromJson(element));
-          });
-        }
-      }
-      else{
-        Fluttertoast.showToast(msg: "Error: trending");
-      }
-    }
-    catch(e){
-      print("Error + ${e}");
-    }
-    return fullList;
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,6 +164,7 @@ class HomeFragmentScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -173,6 +177,7 @@ class HomeFragmentScreen extends StatelessWidget {
             SizedBox(height: 5,),
             Text("All Items",style: TextStyle(color: Colors.black,fontSize: 40,fontWeight: FontWeight.bold),textAlign: TextAlign.left,),
             allItemWidget(context),
+            SizedBox(height: 5,),
           ],
         ),
       ),
@@ -243,7 +248,7 @@ class HomeFragmentScreen extends StatelessWidget {
                   Item eachItem = dataSnapshot.data![index];
                   return GestureDetector(
                     onTap: (){
-
+                      Get.to(ItemDetailsScreen(eachItem));
                     },
                     child: Container(
                       width: 200,
@@ -413,108 +418,80 @@ class HomeFragmentScreen extends StatelessWidget {
             return const Text("No Items");
           }
           if(dataSnapshot.data!.length > 0){
-            return Container(
-              height: 260,
-              child: ListView.builder(
-                  itemCount: dataSnapshot.data!.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (BuildContext context, int index){
-                    var eachItem = dataSnapshot.data![index];
-                    return GestureDetector(
-                        onTap: (){},
-                        child: Padding(
-                          padding: const EdgeInsets.all(14.0),
-                          child: Column(
-                            children: [
-                              const SizedBox(
-                                height: 5,
+            return ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: dataSnapshot.data!.length,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (BuildContext context, int index){
+                  var eachItem = dataSnapshot.data![index];
+                  return GestureDetector(
+                      onTap: (){
+                        Get.to(ItemDetailsScreen(eachItem));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(14.0),
+                        child: Column(
+                          children: [
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(13.0),
+                              width: width,
+                              height: height/4.4,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(25)),
+                                color: Color(0xFFC4C4C4),
                               ),
-                              Container(
-                                padding: const EdgeInsets.all(13.0),
-                                width: width,
-                                height: height/4.4,
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                                  color: Color(0xFFC4C4C4),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Container(
-                                        width: width/4,
-                                        height: height/6,
-                                        decoration: const BoxDecoration(
-                                          boxShadow: [BoxShadow(
-                                            blurRadius: 0,
-                                            color: Colors.black26,
-                                            offset: Offset(0,2),
-                                          )],
-                                          borderRadius: const BorderRadius.all(Radius.circular(20.0)),
-                                          shape: BoxShape.rectangle,
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.all(Radius.circular(20.0)),
-                                          child: FadeInImage(
-                                            height: 150,
-                                            fit: BoxFit.cover,
-                                            width: 200,
-                                            placeholder: const AssetImage('images/img.png'),
-                                            image: NetworkImage(
-                                              eachItem.image!,
-                                            ),
-                                            imageErrorBuilder: (context,error,stackTraceError){
-                                              return const Center(
-                                                child: Icon(
-                                                  Icons.broken_image_outlined,
-                                                ),
-                                              );
-                                            },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: <Widget>[
+                                    Container(
+                                      width: width/4,
+                                      height: height/6,
+                                      decoration: const BoxDecoration(
+                                        boxShadow: [BoxShadow(
+                                          blurRadius: 0,
+                                          color: Colors.black26,
+                                          offset: Offset(0,2),
+                                        )],
+                                        borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+                                        shape: BoxShape.rectangle,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+                                        child: FadeInImage(
+                                          height: 150,
+                                          fit: BoxFit.cover,
+                                          width: 200,
+                                          placeholder: const AssetImage('images/img.png'),
+                                          image: NetworkImage(
+                                            eachItem.image!,
                                           ),
+                                          imageErrorBuilder: (context,error,stackTraceError){
+                                            return const Center(
+                                              child: Icon(
+                                                Icons.broken_image_outlined,
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Row(
-                                            children: [
-                                              const SizedBox(width: 10,),
-                                              Container(
-                                                width: width/3.8,
-                                                height:width/12,
-                                                padding: EdgeInsets.all(height * 0.01),
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    color: Colors.white,
-                                                    boxShadow: const [
-                                                      BoxShadow(
-                                                        blurRadius: 0,
-                                                        color: Colors.black26,
-                                                        offset: Offset(0, 2),
-                                                      )
-                                                    ]),
-                                                child: Center(
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Text(
-                                                        "${eachItem.pizza_name}",
-                                                        style: const TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 10,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 5,),
-                                              Container(
-                                                width: width/3.8,
-                                                height: width/12,
-                                                padding: EdgeInsets.all(height * 0.01),
-                                                decoration: BoxDecoration(
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        Row(
+                                          children: [
+                                            const SizedBox(width: 10,),
+                                            Container(
+                                              width: width/3.8,
+                                              height:width/12,
+                                              padding: EdgeInsets.all(height * 0.01),
+                                              decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.circular(10),
                                                   color: Colors.white,
                                                   boxShadow: const [
@@ -523,129 +500,158 @@ class HomeFragmentScreen extends StatelessWidget {
                                                       color: Colors.black26,
                                                       offset: Offset(0, 2),
                                                     )
-                                                  ],
-                                                ),
+                                                  ]),
+                                              child: Center(
                                                 child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    dropDown("Size",eachItem.base_size),
-                                                  ],
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10,),
-                                          Row(
-                                            children: [
-                                              const SizedBox(width: 10,),
-                                              Container(
-                                                width: width/3.8,
-                                                height: width/12,
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    color: Colors.white,
-                                                    boxShadow: const [
-                                                      BoxShadow(
-                                                        blurRadius: 0,
-                                                        color: Colors.black26,
-                                                        offset: Offset(0, 2),
+                                                    Text(
+                                                      "${eachItem.pizza_name}",
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 10,
                                                       ),
-                                                    ]),
-                                                child: Center(
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      RatingBar.builder(
-                                                          initialRating: eachItem.rating!,
-                                                          direction: Axis.horizontal,
-                                                          allowHalfRating: true,
-                                                          minRating: 1,
-                                                          maxRating: 5,
-                                                          itemCount: 5,
-                                                          itemBuilder: (context,c){
-                                                            return const Icon(
-                                                              Icons.star,
-                                                              color: Colors.amber,
-                                                            );
-                                                          },
-                                                          itemSize: 10,
-                                                          onRatingUpdate: (c){},
-                                                          ignoreGestures: true,
-                                                          unratedColor: Colors.grey,
-                                                      ),
-                                                      SizedBox(width: 3,),
-                                                      Text("${eachItem.rating!}",style: TextStyle(color: Colors.grey,fontSize: 8,fontWeight: FontWeight.w200),),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 5,),
-                                              Container(
-                                                width: width/3.8,
-                                                height: width/12,
-                                                padding: EdgeInsets.all(height * 0.01),
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  color: Colors.white,
-                                                  boxShadow: const [
-                                                    BoxShadow(
-                                                      blurRadius: 0,
-                                                      color: Colors.black26,
-                                                      offset: Offset(0, 2),
-                                                    )
-                                                  ],
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    dropDown("Style",eachItem.base_style),
-                                                  ],
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10,),
-
-                                          Row(
-                                            children: [
-                                              const SizedBox(width: 10,),
-                                              Container(
-                                                width: width/1.85,
-                                                height: width/12,
-                                                padding: EdgeInsets.all(height * 0.01),
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  color: Colors.black,
-                                                  boxShadow: const [
-                                                    BoxShadow(
-                                                      blurRadius: 0,
-                                                      color: Colors.black26,
-                                                      offset: Offset(0, 2),
-                                                    )
-                                                  ],
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Center(child: Text("INR ${eachItem.price}",style: const TextStyle(color: Colors.white),)),
                                                     ),
                                                   ],
                                                 ),
                                               ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                            ),
+                                            const SizedBox(width: 5,),
+                                            Container(
+                                              width: width/3.8,
+                                              height: width/12,
+                                              padding: EdgeInsets.all(height * 0.01),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                color: Colors.white,
+                                                boxShadow: const [
+                                                  BoxShadow(
+                                                    blurRadius: 0,
+                                                    color: Colors.black26,
+                                                    offset: Offset(0, 2),
+                                                  )
+                                                ],
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  dropDown("Size",eachItem.base_size),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10,),
+                                        Row(
+                                          children: [
+                                            const SizedBox(width: 10,),
+                                            Container(
+                                              width: width/3.8,
+                                              height: width/12,
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  color: Colors.white,
+                                                  boxShadow: const [
+                                                    BoxShadow(
+                                                      blurRadius: 0,
+                                                      color: Colors.black26,
+                                                      offset: Offset(0, 2),
+                                                    ),
+                                                  ]),
+                                              child: Center(
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    RatingBar.builder(
+                                                        initialRating: eachItem.rating!,
+                                                        direction: Axis.horizontal,
+                                                        allowHalfRating: true,
+                                                        minRating: 1,
+                                                        maxRating: 5,
+                                                        itemCount: 5,
+                                                        itemBuilder: (context,c){
+                                                          return const Icon(
+                                                            Icons.star,
+                                                            color: Colors.amber,
+                                                          );
+                                                        },
+                                                        itemSize: 10,
+                                                        onRatingUpdate: (c){},
+                                                        ignoreGestures: true,
+                                                        unratedColor: Colors.grey,
+                                                    ),
+                                                    SizedBox(width: 3,),
+                                                    Text("${eachItem.rating!}",style: TextStyle(color: Colors.grey,fontSize: 8,fontWeight: FontWeight.w200),),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 5,),
+                                            Container(
+                                              width: width/3.8,
+                                              height: width/12,
+                                              padding: EdgeInsets.all(height * 0.01),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                color: Colors.white,
+                                                boxShadow: const [
+                                                  BoxShadow(
+                                                    blurRadius: 0,
+                                                    color: Colors.black26,
+                                                    offset: Offset(0, 2),
+                                                  )
+                                                ],
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  dropDown("Style",eachItem.base_style),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10,),
+
+                                        Row(
+                                          children: [
+                                            const SizedBox(width: 10,),
+                                            Container(
+                                              width: width/1.85,
+                                              height: width/12,
+                                              padding: EdgeInsets.all(height * 0.01),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                color: Colors.black,
+                                                boxShadow: const [
+                                                  BoxShadow(
+                                                    blurRadius: 0,
+                                                    color: Colors.black26,
+                                                    offset: Offset(0, 2),
+                                                  )
+                                                ],
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Center(child: Text("INR ${eachItem.price}",style: const TextStyle(color: Colors.white),)),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        )
-                    );
-                  }
-              ),
+                            ),
+                          ],
+                        ),
+                      )
+                  );
+                }
             );
           }
           else{return const Center();}

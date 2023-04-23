@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pizzeria/Admin/admin_login.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:pizzeria/Admin/item_edit_screen.dart';
 import 'package:pizzeria/api_connection/api_connection.dart';
 
 Future<String> hostImage(XFile? file) async {
@@ -131,6 +132,7 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
           "image":  imageLink,
         },
       );
+      print(response.body);
       if (response.statusCode == 200){
         var resBody = jsonDecode(response.body);
         if(resBody['success']==true) {
@@ -613,6 +615,9 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
         ),
         automaticallyImplyLeading: false,
         title: const Center(child: Text('Admin Home')),
+        actions: [
+          IconButton(onPressed: (){Get.to(ItemEditScreen());}, icon: const Icon(Icons.edit, color: Colors.white,))
+        ],
       ),
       body : Container(
         decoration:const BoxDecoration(
