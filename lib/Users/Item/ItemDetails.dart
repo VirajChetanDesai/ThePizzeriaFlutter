@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:pizzeria/Users/model/item.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import '../Controllers/Item_details_controller.dart';
+import 'package:pizzeria/Users/Controllers/Item_details_controller.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:pizzeria/api_connection/api_connection.dart';
+import 'package:pizzeria/user_preferences/current_user.dart';
 class ItemDetailsScreen extends StatefulWidget {
   late var itemDetail;
   ItemDetailsScreen(this.itemDetail);
@@ -12,6 +17,33 @@ class ItemDetailsScreen extends StatefulWidget {
 
 class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
   final itemDetailsController = Get.put(ItemDetailsController());
+  final currentOnlineUser = Get.put(currentUser());
+  addItemToCart()async{
+    try{
+      var res = await http.post(
+        Uri.parse(API.addtoCart),
+        body: {
+          "user_id": currentOnlineUser.user.user_email.toString(),
+          "item_id": widget.itemDetail!.item_id.toString(),
+          "quantity": itemDetailsController.quantity.toString(),
+          "style":widget.itemDetail.base_style[itemDetailsController.style].toString().replaceAll('[', '').replaceAll(']', ''),
+          "size":widget.itemDetail.base_size[itemDetailsController.size].toString().replaceAll('[', '').replaceAll(']', ''),
+        }
+      );
+      if(res.statusCode == 200){
+        var resBodyLogIn = json.decode(res.body);
+        if(resBodyLogIn['success'] == true){
+          Fluttertoast.showToast(msg: 'Added to Cart');
+        }else{
+          Fluttertoast.showToast(msg: 'Invalid Email or Password');
+        }
+      }else{
+        Fluttertoast.showToast(msg: 'Login Failed');
+        }
+    }catch(e){
+      print("Error"+ e.toString());
+    }
+  }
   itemInfoWidget(){
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
@@ -50,7 +82,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               ),
               const SizedBox(height: 30,),
               Text(widget.itemDetail.pizza_name,
-                style: TextStyle(color: Colors.lightBlueAccent,fontSize: 25,fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.lightBlueAccent,fontSize: 25,fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16,),
               Row(
@@ -92,10 +124,10 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                         const SizedBox(height: 16,),
                         Row(
                           children: [
-                            Text("Ingredients : " , style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
+                            const Text("Ingredients : " , style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
                             Text(
                               widget.itemDetail!.tags!.toString().replaceAll("[","").replaceAll("]",""),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey,
                               ),
@@ -122,7 +154,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                           IconButton(onPressed: (){
                             itemDetailsController.setQuantityItem(itemDetailsController.quantity + 1);
                           }, icon: const Icon(Icons.add_circle_outline,color: Colors.lightBlueAccent,),),
-                          Text(itemDetailsController.quantity.toString(),style: TextStyle(color: Colors.black),),
+                          Text(itemDetailsController.quantity.toString(),style: const TextStyle(color: Colors.black),),
                           IconButton(onPressed: (){
                             if(itemDetailsController.quantity > 1){
                               itemDetailsController.setQuantityItem(itemDetailsController.quantity - 1);
@@ -167,7 +199,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                             ),
                             alignment : Alignment.center,
                             child: Center(child: Text(widget.itemDetail!.base_size![index].replaceAll("[","").replaceAll("]",""),
-                              style: itemDetailsController.size == index? TextStyle(color: Colors.white):TextStyle(color: Colors.grey),)),
+                              style: itemDetailsController.size == index? const TextStyle(color: Colors.white):const TextStyle(color: Colors.grey),)),
                           ),
                         ),
                       );
@@ -209,7 +241,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                         child: Center(child: Text(widget.itemDetail!.base_style![index].replaceAll("[","").replaceAll("]",""),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: itemDetailsController.style == index? TextStyle(color: Colors.white):TextStyle(color: Colors.grey),)),
+                          style: itemDetailsController.style == index? const TextStyle(color: Colors.white):const TextStyle(color: Colors.grey),)),
                       ),
                     ),
                     );
@@ -229,7 +261,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               Text(
                 widget.itemDetail.description,
                 textAlign: TextAlign.justify,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.grey,
                 ),
               ),
@@ -239,12 +271,14 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                 color: Colors.lightBlueAccent,
                 borderRadius: BorderRadius.circular(30),
                 child: InkWell(
-                  onTap: (){},
+                  onTap: (){
+                    addItemToCart();
+                  },
                   borderRadius: BorderRadius.circular(30),
                   child: Container(
                     alignment: Alignment.center,
                     height: 50,
-                    child: Text("Add To Cart",style: TextStyle(color: Colors.white),),
+                    child: const Text("Add To Cart",style: TextStyle(color: Colors.white),),
                   ),
                 ),
               ),

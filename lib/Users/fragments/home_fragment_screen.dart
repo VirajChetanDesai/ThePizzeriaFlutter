@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pizzeria/Users/Cart/cart_screen.dart';
 import 'package:pizzeria/Users/Item/ItemDetails.dart';
 import 'package:pizzeria/Users/model/item.dart';
 import 'package:http/http.dart' as http;
@@ -158,7 +159,9 @@ class HomeFragmentScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            onPressed: (){},
+            onPressed: (){
+              Get.to(CartListScreen());
+            },
             icon: const Icon( Icons.shopping_cart, color: Colors.white,),
           ),
         ],
@@ -171,11 +174,11 @@ class HomeFragmentScreen extends StatelessWidget {
           children: [
             SizedBox(height: 5,),
             showSearchBarWidget(),
-            SizedBox(height: 5,),
-            Text("Most Popular",style: TextStyle(color: Colors.black,fontSize: 40,fontWeight: FontWeight.bold),textAlign: TextAlign.left,),
+            SizedBox(height: 10,),
+            Text("Most Popular",style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.bold),textAlign: TextAlign.left,),
             trendingWidget(context),
-            SizedBox(height: 5,),
-            Text("All Items",style: TextStyle(color: Colors.black,fontSize: 40,fontWeight: FontWeight.bold),textAlign: TextAlign.left,),
+            SizedBox(height: 10,),
+            Text("All Items",style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.bold),textAlign: TextAlign.left,),
             allItemWidget(context),
             SizedBox(height: 5,),
           ],

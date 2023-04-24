@@ -2,7 +2,7 @@
 include '../connection.php';
 
 $limitItems = 5;
-$resultQuery = mysqli_query($connectNow,"select * from items_table");
+$resultQuery = mysqli_query($connectNow,"select * from items_table ORDER BY item_id DESC");
 
 if($resultQuery->num_rows > 0){
     $itemsRecord = array();
