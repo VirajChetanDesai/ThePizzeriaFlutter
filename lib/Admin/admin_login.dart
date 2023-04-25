@@ -38,7 +38,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         if(resBodyLogIn['success'] == true){
           Fluttertoast.showToast(msg: 'Login Successful');
 
-          Get.to(()=> const AdminUploadItemScreen());
+          Get.to(()=> AdminUploadItemScreen(emailController.text.trim()));
         }else{
           Fluttertoast.showToast(msg: 'Invalid Email or Password');
         }

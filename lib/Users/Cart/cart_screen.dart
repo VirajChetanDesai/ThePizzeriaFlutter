@@ -21,6 +21,69 @@ class CartListScreen extends StatefulWidget {
 class _CartListScreenState extends State<CartListScreen> {
   final currentOnlineUser = Get.put(currentUser());
   final cartListController = Get.put(CartListController());
+
+  cartItemDeletion(int? cart_id)async{
+    try{
+      var res = await http.post(
+        Uri.parse(API.deleteCartItem),
+        body: {
+          "cart_id" : cart_id.toString(),
+        },
+      );
+      if(res.statusCode == 200){
+        var deletionBody = jsonDecode(res.body);
+        if(deletionBody['success'] == true){
+          Fluttertoast.showToast(msg: "Item Deleted Successfully");
+        }else{
+          Fluttertoast.showToast(msg: "Item could not be deleted");
+        }
+      }else{
+        Fluttertoast.showToast(msg: "Database Currently Inactive");
+      }
+    }catch(e){
+      print(e);
+    }
+  }
+
+  Future deleteFromCart(int? cart_id) {
+    return showDialog(context: context,
+        builder: (context) {
+          return SimpleDialog(
+              title: const Text(
+                'Delete from Cart?',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              children: <Widget>[
+                SimpleDialogOption(
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      cartItemDeletion(cart_id);
+                    });
+                  },
+                ),
+                SimpleDialogOption(
+                  child: const Text(
+                    'Back',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  onPressed: () {
+                    Get.back();
+                  },
+                ),
+              ]);
+        },
+    );
+  }
+
   getCurrentUserCartList() async {
     List<Cart> cartListCurrentUser = [];
     try {
@@ -136,15 +199,32 @@ class _CartListScreenState extends State<CartListScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          cartModel.pizza_name.toString(),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.baseline,
+                                          textBaseline: TextBaseline.alphabetic,
+                                          children: [
+                                            Text(
+                                              cartModel.pizza_name.toString(),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            IconButton(
+                                                onPressed: () {
+                                                  deleteFromCart(cartModel.cart_id);
+                                                },
+                                                icon: Icon(
+                                                  Icons.delete_forever_outlined,
+                                                  color: Colors.red,
+                                                )),
+                                          ],
                                         ),
                                         const SizedBox(height: 20),
                                         Row(
@@ -190,8 +270,15 @@ class _CartListScreenState extends State<CartListScreen> {
                                                   size: 30,
                                                 )),
                                             Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Text(cartModel.quantity.toString(),style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 20),),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                cartModel.quantity.toString(),
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20),
+                                              ),
                                             ),
                                             IconButton(
                                                 onPressed: () {},

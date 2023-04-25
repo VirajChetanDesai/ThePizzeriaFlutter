@@ -20,7 +20,7 @@ class Item {
     rating: double.parse(json["rating"]),
     tags: json["tags"].toString().split(', '),
     price: double.parse(json["price"]),
-    base_size: json["size"].toString().split(', '),
+    base_size: json["pizza_size"].toString().split(', '),
     base_style: json["base"].toString().split(', '),
     description: json["description"],
     image: json["image"],

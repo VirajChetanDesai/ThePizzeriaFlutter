@@ -27,8 +27,8 @@ Future<String> hostImage(XFile? file) async {
 }
 
 class AdminUploadItemScreen extends StatefulWidget {
-  const AdminUploadItemScreen({Key? key}) : super(key: key);
-
+  late String adminEmail;
+  AdminUploadItemScreen(this.adminEmail, {Key? key}) : super(key: key);
   @override
   State<AdminUploadItemScreen> createState() => _AdminUploadItemScreenState();
 }
@@ -130,6 +130,7 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
           "base": baseList.toString(),
           "description":  descriptionController.text.trim().toString(),
           "image":  imageLink,
+          "admin_email" : widget.adminEmail,
         },
       );
       print(response.body);
