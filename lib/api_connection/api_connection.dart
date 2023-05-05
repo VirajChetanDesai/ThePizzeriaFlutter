@@ -1,5 +1,5 @@
 class API{
-  static const ip = '192.168.240.13';
+  static const ip = '10.52.2.79';
   static const hostConnect = "http://$ip/api_pizzeria_store";//uri
   static const hostConnectUser = "http://$ip/api_pizzeria_store/user";
   static const hostConnectAdmin = "http://$ip/api_pizzeria_store/admin";

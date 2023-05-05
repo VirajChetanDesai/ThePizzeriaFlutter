@@ -5,5 +5,5 @@ $password = "";
 $database = "pizzeria_app";
 $connectNow = new mysqli($serverHost,$user,$password,$database);
 if(!$connectNow){
-    print('Inable to connect');
+    print('Unable to connect');
 }

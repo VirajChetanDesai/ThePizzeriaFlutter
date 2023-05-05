@@ -8,8 +8,9 @@ $itemSizes = $_POST['sizes'];
 $itemBase = $_POST['base'];
 $itemDescription = $_POST['description'];
 $itemImage = $_POST['image'];
+$adminEmail = $_POST['admin_email'];
 
-$resultQuery = mysqli_query($connectNow,"INSERT INTO items_table(name,rating,tags,price,pizza_size,base,description,image) VALUES('$itemName','$itemRating','$itemTags','$itemPrice','$itemSizes','$itemBase','$itemDescription','$itemImage')");
+$resultQuery = mysqli_query($connectNow,"INSERT INTO items_table(name,rating,tags,price,pizza_size,base,description,image,admin_email) VALUES('$itemName','$itemRating','$itemTags','$itemPrice','$itemSizes','$itemBase','$itemDescription','$itemImage','$adminEmail')");
 
 if($resultQuery){
     echo json_encode(array(
