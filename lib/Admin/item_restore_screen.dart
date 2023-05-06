@@ -5,91 +5,124 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:pizzeria/Admin/admin_upload_screen.dart';
-import 'package:pizzeria/Admin/item_restore_screen.dart';
+import 'package:pizzeria/Admin/item_edit_screen.dart';
 import 'package:pizzeria/Users/Authentication/login_screen.dart';
 import 'package:pizzeria/Users/fragments/home_fragment_screen.dart';
 import 'package:pizzeria/Users/model/item.dart';
 import 'package:pizzeria/api_connection/api_connection.dart';
 import 'package:get/get.dart';
 
-class ItemEditScreen extends StatefulWidget {
+class ItemRestoreScreen extends StatefulWidget {
   String? adminEmail;
-  ItemEditScreen(this.adminEmail, {super.key});
+  ItemRestoreScreen(this.adminEmail, {super.key});
   @override
-  State<ItemEditScreen> createState() => _ItemEditScreenState();
+  State<ItemRestoreScreen> createState() => _ItemRestoreScreenState();
 }
 
-class _ItemEditScreenState extends State<ItemEditScreen> {
-  itemDeletion(int? item_id) async {
-    try {
+class _ItemRestoreScreenState extends State<ItemRestoreScreen> {
+  Future<List> getDeletedItems()async{
+    List<Item> fullList = [];
+    try{
       var res = await http.post(
-        Uri.parse(API.deleteItemFromDB),
+        Uri.parse(API.retrieveAllDeletedItems),
+      );
+      if(res.statusCode == 200){
+        var restoreBody = jsonDecode(res.body);
+        if(restoreBody["success"] == true){
+          (restoreBody["itemsData"] as List).forEach((element) {
+            fullList.add(Item.fromJson2(element));
+          });
+        }
+      }
+      else{
+        Fluttertoast.showToast(msg: "Error: getDeletedItems");
+      }
+    }
+    catch(e){
+      print("Error + ${e} ");
+    }
+    return fullList;
+  }
+  deleteFromBackup(int itemId)async{
+    try{
+      var res = await http.post(
+        Uri.parse(API.deleteBackupDeletedItems),
         body: {
-          "ItemID": item_id.toString(),
-        },
+          "backup_id":itemId.toString(),
+        }
       );
       print(res.body);
-      if (res.statusCode == 200) {
-        var deletionBody = jsonDecode(res.body);
-        if (deletionBody['success'] == true) {
-          Fluttertoast.showToast(msg: "Item Deleted Successfully");
-        } else {
-          Fluttertoast.showToast(msg: "Item could not be deleted");
-        }
-      } else {
-        Fluttertoast.showToast(msg: "Database Currently Inactive");
+      if(res.statusCode == 200){
+        Fluttertoast.showToast(msg: "Successfully Deleted");
       }
-    } catch (e) {
+    }catch(e){
       print(e);
     }
   }
+  itemAdder(Item? item)async{
+    try{
+      var response = await http.post(
+        Uri.parse(API.upload),
+        body: {
+          "name": item?.pizza_name,
+          "rating": item?.rating.toString(),
+          "tags": item?.tags.toString().replaceFirst('[', '').replaceFirst(']', ''),
+          "price": item?.price.toString(),
+          "sizes": item?.base_size.toString().replaceFirst('[', '').replaceFirst(']', ''),
+          "base": item?.base_style.toString().replaceFirst('[', '').replaceFirst(']', ''),
+          "description":  item?.description,
+          "image":  item?.image,
+          "admin_email" : widget.adminEmail,
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200){
+        var resBody = jsonDecode(response.body);
+        if(resBody['success']==true) {
+          Fluttertoast.showToast(msg: "Successful Upload");
+        }else{
+          Fluttertoast.showToast(msg: "Failed Upload");
+        }
+      }
+    }catch(e){
+      print('Error ${e}');
+    }
+  }
 
-  Future deleteFromItemList(int? item_id) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return SimpleDialog(
-            title: const Text(
-              'Delete from Items?',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            children: <Widget>[
-              SimpleDialogOption(
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
-                  ),
-                ),
-                onPressed: () {
-                  setState(() {
-                    itemDeletion(item_id);
-                    Get.back();
-                  });
-                },
-              ),
-              SimpleDialogOption(
-                child: const Text(
-                  'Back',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-                onPressed: () {
-                  Get.back();
-                },
-              ),
-            ]);
-      },
-    );
+  itemRestore(int? item_id)async{
+    Item? item;
+    try{
+      var res = await http.post(
+        Uri.parse(API.retrieveDeletedItems),
+        body: {
+          "ItemID" : item_id.toString(),
+          "AdminEmail" : widget.adminEmail,
+        },
+      );
+      print(res.body);
+      if(res.statusCode == 200){
+        var restoreBody = jsonDecode(res.body);
+        if(restoreBody['success'] == true){
+          (restoreBody["itemsData"] as List).forEach((element) {
+            itemAdder(Item.fromJson2(element));
+          });
+          Fluttertoast.showToast(msg: "Item Restored Successfully");
+        }else{
+          Fluttertoast.showToast(msg: "Item could not be restored");
+        }
+      }else{
+        Fluttertoast.showToast(msg: "Database Currently Inactive");
+      }
+    }catch(e){
+      print(e);
+    }
   }
 
   Widget EditWidget(context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return FutureBuilder(
-        future: getAllItems(),
+        future: getDeletedItems(),
         builder: (context, AsyncSnapshot<List> dataSnapshot) {
           if (dataSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -120,7 +153,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                               height: height / 4.4,
                               decoration: const BoxDecoration(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(25)),
+                                BorderRadius.all(Radius.circular(25)),
                                 color: Color(0xFFC4C4C4),
                               ),
                               child: Padding(
@@ -149,13 +182,13 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                           height: 150,
                                           fit: BoxFit.cover,
                                           width: 200,
-                                          placeholder: const AssetImage(
-                                              'images/img.png'),
+                                          placeholder:
+                                          const AssetImage('images/img.png'),
                                           image: NetworkImage(
                                             eachItem.image!,
                                           ),
-                                          imageErrorBuilder: (context, error,
-                                              stackTraceError) {
+                                          imageErrorBuilder:
+                                              (context, error, stackTraceError) {
                                             return const Center(
                                               child: Icon(
                                                 Icons.broken_image_outlined,
@@ -166,10 +199,9 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                       ),
                                     ),
                                     Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      CrossAxisAlignment.center,
                                       children: <Widget>[
                                         Row(
                                           children: [
@@ -180,10 +212,10 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: width / 3.8,
                                               height: width / 12,
                                               padding:
-                                                  EdgeInsets.all(height * 0.01),
+                                              EdgeInsets.all(height * 0.01),
                                               decoration: BoxDecoration(
                                                   borderRadius:
-                                                      BorderRadius.circular(10),
+                                                  BorderRadius.circular(10),
                                                   color: Colors.white,
                                                   boxShadow: const [
                                                     BoxShadow(
@@ -195,7 +227,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               child: Center(
                                                 child: Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                  MainAxisAlignment.center,
                                                   children: [
                                                     Text(
                                                       "${eachItem.pizza_name}",
@@ -215,10 +247,10 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: width / 3.8,
                                               height: width / 12,
                                               padding:
-                                                  EdgeInsets.all(height * 0),
+                                              EdgeInsets.all(height * 0),
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                                 color: Colors.white,
                                                 boxShadow: const [
                                                   BoxShadow(
@@ -230,20 +262,19 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               ),
                                               child: Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                MainAxisAlignment.center,
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.baseline,
+                                                CrossAxisAlignment.baseline,
                                                 textBaseline:
-                                                    TextBaseline.alphabetic,
+                                                TextBaseline.alphabetic,
                                                 children: [
                                                   IconButton(
                                                       onPressed: () {
-                                                        deleteFromItemList(eachItem.item_id);
+                                                        itemRestore(eachItem.item_id);
                                                       },
                                                       icon: const Icon(
-                                                        Icons
-                                                            .delete_forever_outlined,
-                                                        color: Colors.red,
+                                                        Icons.add,
+                                                        color: Colors.blue,
                                                         size: 17,
                                                       )),
                                                 ],
@@ -264,7 +295,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               height: width / 12,
                                               decoration: BoxDecoration(
                                                   borderRadius:
-                                                      BorderRadius.circular(10),
+                                                  BorderRadius.circular(10),
                                                   color: Colors.white,
                                                   boxShadow: const [
                                                     BoxShadow(
@@ -276,23 +307,20 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               child: Center(
                                                 child: Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                  MainAxisAlignment.center,
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
+                                                  CrossAxisAlignment.center,
+                                                  mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     RatingBar.builder(
                                                       initialRating:
-                                                          eachItem.rating!,
-                                                      direction:
-                                                          Axis.horizontal,
+                                                      eachItem.rating!,
+                                                      direction: Axis.horizontal,
                                                       allowHalfRating: true,
                                                       minRating: 1,
                                                       maxRating: 5,
                                                       itemCount: 5,
-                                                      itemBuilder:
-                                                          (context, c) {
+                                                      itemBuilder: (context, c) {
                                                         return const Icon(
                                                           Icons.star,
                                                           color: Colors.amber,
@@ -312,7 +340,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                                           color: Colors.grey,
                                                           fontSize: 8,
                                                           fontWeight:
-                                                              FontWeight.w200),
+                                                          FontWeight.w200),
                                                     ),
                                                   ],
                                                 ),
@@ -325,10 +353,10 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: width / 3.8,
                                               height: width / 12,
                                               padding:
-                                                  EdgeInsets.all(height * 0),
+                                              EdgeInsets.all(height * 0),
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                                 color: Colors.white,
                                                 boxShadow: const [
                                                   BoxShadow(
@@ -340,17 +368,21 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               ),
                                               child: Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                MainAxisAlignment.center,
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.baseline,
+                                                CrossAxisAlignment.baseline,
                                                 textBaseline:
-                                                    TextBaseline.alphabetic,
+                                                TextBaseline.alphabetic,
                                                 children: [
                                                   IconButton(
-                                                      onPressed: () {},
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          deleteFromBackup(eachItem.item_id);
+                                                        });
+                                                      },
                                                       icon: const Icon(
-                                                        Icons.edit,
-                                                        color: Colors.grey,
+                                                        Icons.delete,
+                                                        color: Colors.red,
                                                         size: 17,
                                                       )),
                                                 ],
@@ -370,10 +402,10 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: width / 1.85,
                                               height: width / 12,
                                               padding:
-                                                  EdgeInsets.all(height * 0.01),
+                                              EdgeInsets.all(height * 0.01),
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
+                                                BorderRadius.circular(10),
                                                 color: Colors.black,
                                                 boxShadow: const [
                                                   BoxShadow(
@@ -388,10 +420,10 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                                   Expanded(
                                                     child: Center(
                                                         child: Text(
-                                                      "INR ${eachItem.price}",
-                                                      style: const TextStyle(
-                                                          color: Colors.white),
-                                                    )),
+                                                          "INR ${eachItem.price}",
+                                                          style: const TextStyle(
+                                                              color: Colors.white),
+                                                        )),
                                                   ),
                                                 ],
                                               ),
@@ -413,23 +445,19 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
           }
         });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Center(child: Text("Item Edit Screen")),
+        title: const Center(child: Text("Item Restore Screen")),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  Get.to(ItemRestoreScreen(widget.adminEmail));
-                });
-              },
-              icon: Icon(Icons.undo))
-        ],
+        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new), onPressed: () {
+          setState(() {
+            Get.back();
+          });
+
+          },),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(

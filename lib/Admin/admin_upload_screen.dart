@@ -617,7 +617,7 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
         automaticallyImplyLeading: false,
         title: const Center(child: Text('Admin Home')),
         actions: [
-          IconButton(onPressed: (){Get.to(ItemEditScreen());}, icon: const Icon(Icons.edit, color: Colors.white,))
+          IconButton(onPressed: (){Get.to(ItemEditScreen(widget.adminEmail));}, icon: const Icon(Icons.edit, color: Colors.white,))
         ],
       ),
       body : Container(

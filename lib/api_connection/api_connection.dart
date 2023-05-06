@@ -1,5 +1,5 @@
 class API{
-  static const ip = '10.52.2.79';
+  static const ip = '10.122.3.26';
   static const hostConnect = "http://$ip/api_pizzeria_store";//uri
   static const hostConnectUser = "http://$ip/api_pizzeria_store/user";
   static const hostConnectAdmin = "http://$ip/api_pizzeria_store/admin";
@@ -16,5 +16,8 @@ class API{
   static const getCartList = '$hostConnectionCart/read.php';
   static const deleteCartItem = '$hostConnectionCart/delete.php';
   static const deleteItemFromDB = '$hostConnectItems/delete.php';
+  static const retrieveDeletedItems = '$hostConnectAdmin/backup.php';
+  static const retrieveAllDeletedItems = '$hostConnectAdmin/allbackup.php';
+  static const deleteBackupDeletedItems = '$hostConnectAdmin/backupdelete.php';
 }
 
