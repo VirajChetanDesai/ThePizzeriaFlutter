@@ -1,9 +1,6 @@
 <?php
 include '../connection.php';
-
-$ItemId= $_POST['ItemID'];
-$AdminEmail = $_POST['AdminEmail'];
-$resultQuery = mysqli_query($connectNow,"SELECT * FROM backup_table where bitem_id=$ItemId and badmin_email = '$AdminEmail'");
+$resultQuery = mysqli_query($connectNow,"select * from backup_table ORDER BY bitem_id DESC");
 
 if($resultQuery->num_rows > 0){
     $itemsRecord = array();

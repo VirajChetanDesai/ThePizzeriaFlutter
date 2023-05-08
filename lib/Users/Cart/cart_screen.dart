@@ -99,7 +99,7 @@ class _CartListScreenState extends State<CartListScreen> {
             cartListCurrentUser.add(Cart.fromJson(element));
           });
         } else {
-          Fluttertoast.showToast(msg: "Error occurred while executing query");
+          Fluttertoast.showToast(msg: "Cart Empty");
         }
         cartListController.setList(cartListCurrentUser);
       } else {

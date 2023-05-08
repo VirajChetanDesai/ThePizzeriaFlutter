@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:pizzeria/Admin/admin_upload_screen.dart';
+import 'package:pizzeria/Admin/item_edit_form.dart';
 import 'package:pizzeria/Admin/item_restore_screen.dart';
 import 'package:pizzeria/Users/Authentication/login_screen.dart';
 import 'package:pizzeria/Users/fragments/home_fragment_screen.dart';
@@ -347,7 +348,11 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                                     TextBaseline.alphabetic,
                                                 children: [
                                                   IconButton(
-                                                      onPressed: () {},
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          Get.to(ItemEditForm(eachItem,widget.adminEmail));
+                                                        });
+                                                      },
                                                       icon: const Icon(
                                                         Icons.edit,
                                                         color: Colors.grey,

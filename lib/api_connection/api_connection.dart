@@ -19,5 +19,6 @@ class API{
   static const retrieveDeletedItems = '$hostConnectAdmin/backup.php';
   static const retrieveAllDeletedItems = '$hostConnectAdmin/allbackup.php';
   static const deleteBackupDeletedItems = '$hostConnectAdmin/backupdelete.php';
+  static const updateItem = '$hostConnectAdmin/update.php';
 }
 
