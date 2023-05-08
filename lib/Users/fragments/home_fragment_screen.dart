@@ -119,12 +119,12 @@ class _dropDown extends State<dropDown> {
           padding: EdgeInsets.zero,
           hint: Text(widget.selected,style: const TextStyle(color: Colors.black),),
           icon: const Icon(Icons.arrow_drop_down,color: Colors.black,),
-          iconSize: 18,
+          iconSize: 16,
           isDense: true,
           borderRadius: BorderRadius.circular(10),
           style: const TextStyle(
             color: Colors.black,
-            fontSize: 12.0,
+            fontSize: 10.0,
           ),
           underline: Container(
             height: 0,
@@ -299,7 +299,7 @@ class HomeFragmentScreen extends StatelessWidget {
                                   children: [
                                     Expanded(
                                       child: Container(
-                                      width: width/3.8,
+                                      width: width/4,
                                       height: width/12,
                                       padding: EdgeInsets.all(height * 0.01),
                                       decoration: BoxDecoration(
@@ -325,7 +325,7 @@ class HomeFragmentScreen extends StatelessWidget {
 
                                     Expanded(
                                       child: Container(
-                                        width: width/3.8,
+                                        width: width/4,
                                         height: width/12,
                                         padding: EdgeInsets.all(height * 0.01),
                                         decoration: BoxDecoration(
@@ -491,7 +491,7 @@ class HomeFragmentScreen extends StatelessWidget {
                                           children: [
                                             const SizedBox(width: 10,),
                                             Container(
-                                              width: width/3.8,
+                                              width: width/4,
                                               height:width/12,
                                               padding: EdgeInsets.all(height * 0.01),
                                               decoration: BoxDecoration(
@@ -521,7 +521,7 @@ class HomeFragmentScreen extends StatelessWidget {
                                             ),
                                             const SizedBox(width: 5,),
                                             Container(
-                                              width: width/3.8,
+                                              width: width/4,
                                               height: width/12,
                                               padding: EdgeInsets.all(height * 0.01),
                                               decoration: BoxDecoration(
@@ -548,7 +548,7 @@ class HomeFragmentScreen extends StatelessWidget {
                                           children: [
                                             const SizedBox(width: 10,),
                                             Container(
-                                              width: width/3.8,
+                                              width: width/4,
                                               height: width/12,
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.circular(10),
@@ -592,7 +592,7 @@ class HomeFragmentScreen extends StatelessWidget {
                                             ),
                                             const SizedBox(width: 5,),
                                             Container(
-                                              width: width/3.8,
+                                              width: width/4,
                                               height: width/12,
                                               padding: EdgeInsets.all(height * 0.01),
                                               decoration: BoxDecoration(
@@ -620,7 +620,7 @@ class HomeFragmentScreen extends StatelessWidget {
                                           children: [
                                             const SizedBox(width: 10,),
                                             Container(
-                                              width: width/1.85,
+                                              width: width/2,
                                               height: width/12,
                                               padding: EdgeInsets.all(height * 0.01),
                                               decoration: BoxDecoration(

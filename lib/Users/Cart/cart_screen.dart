@@ -21,7 +21,9 @@ class CartListScreen extends StatefulWidget {
 class _CartListScreenState extends State<CartListScreen> {
   final currentOnlineUser = Get.put(currentUser());
   final cartListController = Get.put(CartListController());
+  orderNow(var cartList){
 
+  }
   cartItemDeletion(int? cart_id)async{
     try{
       var res = await http.post(
@@ -223,7 +225,9 @@ class _CartListScreenState extends State<CartListScreen> {
                     color: cartListController.selectedItem.length>0? Colors.lightBlueAccent:Colors.white24,
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
-                      onTap: (){},
+                      onTap: (){
+                        orderNow(cartListController.cartList);
+                      },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 25,vertical: 10),
                         child: Text(

@@ -178,7 +178,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: 10,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               padding:
                                                   EdgeInsets.all(height * 0.01),
@@ -213,7 +213,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: 5,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               padding:
                                                   EdgeInsets.all(height * 0),
@@ -261,7 +261,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: 10,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               decoration: BoxDecoration(
                                                   borderRadius:
@@ -323,7 +323,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: 5,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               padding:
                                                   EdgeInsets.all(height * 0),
@@ -372,7 +372,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               width: 10,
                                             ),
                                             Container(
-                                              width: width / 1.85,
+                                              width: width / 2,
                                               height: width / 12,
                                               padding:
                                                   EdgeInsets.all(height * 0.01),
@@ -390,14 +390,12 @@ class _ItemEditScreenState extends State<ItemEditScreen> {
                                               ),
                                               child: Row(
                                                 children: [
-                                                  Expanded(
-                                                    child: Center(
-                                                        child: Text(
-                                                      "INR ${eachItem.price}",
-                                                      style: const TextStyle(
-                                                          color: Colors.white),
-                                                    )),
-                                                  ),
+                                                  Center(
+                                                      child: Text(
+                                                    "INR ${eachItem.price}",
+                                                    style: const TextStyle(
+                                                        color: Colors.white),
+                                                  )),
                                                 ],
                                               ),
                                             ),
