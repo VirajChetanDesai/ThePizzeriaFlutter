@@ -21,6 +21,11 @@ class CartListController extends GetxController{
     update();
   }
 
+  deleteSelectedItem(int itemSelectedId){
+    _selectedItem.value.remove(itemSelectedId);
+    update();
+  }
+
   removeSelectedItem(int itemSelectedId){
     _selectedItem.value.remove(itemSelectedId);
     update();
@@ -28,6 +33,7 @@ class CartListController extends GetxController{
 
   setIsSelectedAllItems(){
     _isSelectedAll.value = !_isSelectedAll.value;
+    update();
   }
 
   clearAllSelectedItems(){

@@ -34,6 +34,7 @@ class _CartListScreenState extends State<CartListScreen> {
         var deletionBody = jsonDecode(res.body);
         if(deletionBody['success'] == true){
           Fluttertoast.showToast(msg: "Item Deleted Successfully");
+          getCurrentUserCartList();
         }else{
           Fluttertoast.showToast(msg: "Item could not be deleted");
         }
@@ -65,6 +66,7 @@ class _CartListScreenState extends State<CartListScreen> {
                   onPressed: () {
                     setState(() {
                       cartItemDeletion(cart_id);
+                      Get.back();
                     });
                   },
                 ),
@@ -76,7 +78,9 @@ class _CartListScreenState extends State<CartListScreen> {
                     ),
                   ),
                   onPressed: () {
-                    Get.back();
+                    setState(() {
+                      Get.back();
+                    });
                   },
                 ),
               ]);
@@ -114,12 +118,35 @@ class _CartListScreenState extends State<CartListScreen> {
     cartListController.setTotal(0);
     if (cartListController.selectedItem.length > 0) {
       cartListController.cartList.forEach((element) {
-        if (cartListController.selectedItem.contains(element.item_id)) {
+        if (cartListController.selectedItem.contains(element.cart_id)) {
           double _totalAmount =
               element.price! * double.parse(element.quantity!.toString());
           cartListController.setTotal(cartListController.total + _totalAmount);
         }
       });
+    }
+  }
+
+  updateCartQuantity(int quantity,int cart_id)async{
+    try{
+      var res = await http.post(
+        Uri.parse(API.updateCart),
+        body: {
+          "cart_id":cart_id.toString(),
+          "quantity":quantity.toString(),
+        }
+      );
+      print(res.body);
+      if(res.statusCode == 200){
+        var resBody = jsonDecode(res.body);
+        if(resBody['success'] == true){
+          getCurrentUserCartList();
+        }
+      }else{
+        Fluttertoast.showToast(msg: "Database Unavailable");
+      }
+    }catch(e){
+      print(e);
     }
   }
 
@@ -132,6 +159,89 @@ class _CartListScreenState extends State<CartListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text("Cart",style: TextStyle(color: Colors.white),),
+        automaticallyImplyLeading: true,
+        actions: [
+          Obx(()=>
+            IconButton(onPressed: (){
+              cartListController.setIsSelectedAllItems();
+              cartListController.clearAllSelectedItems();
+              if(cartListController.isSelectedAll){
+                cartListController.cartList.forEach((element) {
+                  cartListController.addSelectedItem(element.cart_id!);
+                });
+              }
+              calculateTotalAmount();
+            }, icon: Icon(
+              cartListController.isSelectedAll? Icons.check_box : Icons.check_box_outline_blank,
+              color: cartListController.isSelectedAll?Colors.white:Colors.grey
+              ,
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: GetBuilder(
+        init: CartListController(),
+        builder: (c){
+          return Container(
+            height: MediaQuery.of(context).size.height/12,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0,-1),
+                  color: Colors.black,
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 0),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 4.0),
+              child: Row(
+                children: [
+                  const Text(
+                    "Total - ",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 4,),
+                  Obx(()=>
+                      Text(
+                        "INR "+cartListController.total.toStringAsFixed(2),
+                        maxLines: 1,
+                        style: TextStyle(color: Colors.white,fontSize: 22,fontWeight: FontWeight.bold),
+                      ),),
+                  const Spacer(),
+                  Material(
+                    color: cartListController.selectedItem.length>0? Colors.lightBlueAccent:Colors.white24,
+                    borderRadius: BorderRadius.circular(30),
+                    child: InkWell(
+                      onTap: (){},
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 25,vertical: 10),
+                        child: Text(
+                          "Order Now",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+      ),
       body: Obx(
         () => cartListController.cartList.length > 0
             ? ListView.builder(
@@ -158,13 +268,20 @@ class _CartListScreenState extends State<CartListScreen> {
                             init: CartListController(),
                             builder: (c) {
                               return IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  if(cartListController.selectedItem.contains(cartModel.cart_id)){
+                                    cartListController.deleteSelectedItem(cartModel.cart_id!);
+                                  }else{
+                                    cartListController.addSelectedItem(cartModel!.cart_id!);
+                                  }
+                                  calculateTotalAmount();
+                                },
                                 icon: Icon(cartListController.selectedItem
-                                        .contains(cartModel.item_id)
+                                        .contains(cartModel.cart_id)
                                     ? Icons.check_box
                                     : Icons.check_box_outline_blank),
                                 color: cartListController.isSelectedAll
-                                    ? Colors.white
+                                    ? Colors.grey
                                     : Colors.grey,
                               );
                             }),
@@ -218,7 +335,9 @@ class _CartListScreenState extends State<CartListScreen> {
                                             ),
                                             IconButton(
                                                 onPressed: () {
-                                                  deleteFromCart(cartModel.cart_id);
+                                                  setState(() {
+                                                    deleteFromCart(cartModel.cart_id);
+                                                  });
                                                 },
                                                 icon: Icon(
                                                   Icons.delete_forever_outlined,
@@ -263,7 +382,11 @@ class _CartListScreenState extends State<CartListScreen> {
                                               CrossAxisAlignment.center,
                                           children: [
                                             IconButton(
-                                                onPressed: () {},
+                                                onPressed: () {
+                                                  if(cartModel.quantity! - 1 >0){
+                                                    updateCartQuantity(cartModel.quantity!-1, cartModel.cart_id!);
+                                                  }
+                                                },
                                                 icon: Icon(
                                                   Icons.remove_circle_outline,
                                                   color: Colors.grey,
@@ -281,7 +404,9 @@ class _CartListScreenState extends State<CartListScreen> {
                                               ),
                                             ),
                                             IconButton(
-                                                onPressed: () {},
+                                                onPressed: () {
+                                                  updateCartQuantity(cartModel.quantity!+1, cartModel.cart_id!);
+                                                },
                                                 icon: Icon(
                                                   Icons.add_circle_outline,
                                                   color: Colors.grey,
@@ -304,6 +429,7 @@ class _CartListScreenState extends State<CartListScreen> {
               )
             : Center(child: Text("Cart Is Empty")),
       ),
+
     );
   }
 }
