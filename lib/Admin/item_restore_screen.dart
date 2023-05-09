@@ -209,7 +209,7 @@ class _ItemRestoreScreenState extends State<ItemRestoreScreen> {
                                               width: 10,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               padding:
                                               EdgeInsets.all(height * 0.01),
@@ -244,7 +244,7 @@ class _ItemRestoreScreenState extends State<ItemRestoreScreen> {
                                               width: 5,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               padding:
                                               EdgeInsets.all(height * 0),
@@ -291,7 +291,7 @@ class _ItemRestoreScreenState extends State<ItemRestoreScreen> {
                                               width: 10,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               decoration: BoxDecoration(
                                                   borderRadius:
@@ -350,7 +350,7 @@ class _ItemRestoreScreenState extends State<ItemRestoreScreen> {
                                               width: 5,
                                             ),
                                             Container(
-                                              width: width / 3.8,
+                                              width: width / 4,
                                               height: width / 12,
                                               padding:
                                               EdgeInsets.all(height * 0),
@@ -399,7 +399,7 @@ class _ItemRestoreScreenState extends State<ItemRestoreScreen> {
                                               width: 10,
                                             ),
                                             Container(
-                                              width: width / 1.85,
+                                              width: width / 2,
                                               height: width / 12,
                                               padding:
                                               EdgeInsets.all(height * 0.01),

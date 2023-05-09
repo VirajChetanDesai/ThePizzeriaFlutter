@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:pizzeria/Admin/admin_login.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pizzeria/Admin/item_edit_screen.dart';
 import 'package:pizzeria/api_connection/api_connection.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<String> hostImage(XFile? file) async {
 
@@ -37,6 +39,18 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
   final ImagePicker _picker = ImagePicker();
   XFile? pickedImage;
   phoneCam()async{
+    PermissionStatus status = await Permission.camera.request();
+    if(status == PermissionStatus.denied)
+    {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('This Permission is Required')
+      ));
+      openAppSettings();
+      return;
+    }
+    if(status == PermissionStatus.permanentlyDenied){
+      openAppSettings();
+    }
     pickedImage = await _picker.pickImage(source: ImageSource.camera);
     if(pickedImage!=null){
       Fluttertoast.showToast(msg: 'Image Picked');
@@ -49,6 +63,18 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
     }
   }
   phoneGallery()async{
+    PermissionStatus status = await Permission.photos.request();
+    if(status == PermissionStatus.denied)
+    {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('This Permission is Required')
+      ));
+      openAppSettings();
+      return;
+    }
+    if(status == PermissionStatus.permanentlyDenied){
+      openAppSettings();
+    }
     pickedImage = await _picker.pickImage(source: ImageSource.gallery);
     if(pickedImage!=null){
       Fluttertoast.showToast(msg: 'Image Picked');
@@ -60,7 +86,7 @@ class _AdminUploadItemScreenState extends State<AdminUploadItemScreen> {
       Fluttertoast.showToast(msg: 'No Image picked');
     }
   }
-  imagePicker(){
+  imagePicker()async{
     return showDialog(context: context,
         builder: (context){
           return SimpleDialog(
