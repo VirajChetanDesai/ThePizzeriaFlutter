@@ -1,138 +1,128 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'home_fragment_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pizzeria/Users/Cart/cart_screen.dart';
+import 'package:pizzeria/Users/Item/ItemDetails.dart';
+import 'package:pizzeria/Users/fragments/search_fragment.dart';
+import 'package:pizzeria/Users/model/item.dart';
 import 'package:http/http.dart' as http;
 import 'package:pizzeria/api_connection/api_connection.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:pizzeria/user_preferences/current_user.dart';
-import 'package:pizzeria/Users/model/favourite.dart';
-import 'package:pizzeria/Users/Item/ItemDetails.dart';
-class dropDown extends StatefulWidget {
-  List<String> _dropdownItems;
-  String selected;
-  dropDown(this.selected,this._dropdownItems);
+class SearchScreen extends StatefulWidget {
+  TextEditingController? searchController;
+  SearchScreen(this.searchController, {super.key});
+
   @override
-  State<dropDown> createState() => _dropDown();
-}
-class _dropDown extends State<dropDown> {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ButtonTheme(
-        padding: EdgeInsets.zero,
-        alignedDropdown: true,
-        child: DropdownButton<String>(
-          padding: EdgeInsets.zero,
-          hint: Text(widget.selected,style: const TextStyle(color: Colors.black),),
-          icon: const Icon(Icons.arrow_drop_down,color: Colors.black,),
-          iconSize: 16,
-          isDense: true,
-          borderRadius: BorderRadius.circular(10),
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 10.0,
-          ),
-          underline: Container(
-            height: 0,
-            color: Colors.black12,
-          ),
-          items: widget._dropdownItems.map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: (String? selectedItem) {
-            setState(() {
-              widget.selected = selectedItem!;
-            });
-          },
-        ),
-      ),
-    );
-  }
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-
-class FavouriteFragmentScreen extends StatelessWidget {
-  final currentOnlineUser = Get.put(currentUser());
-  Future<List<Favourite>> readFavourites()async{
-    List<Favourite> favouriteListCurrentUser = [];
+class _SearchScreenState extends State<SearchScreen> {
+  Future<List<Item>> searchresults() async {
+    List<Item> result = [];
     try{
       var res = await http.post(
-        Uri.parse(API.readFavourite),
+        Uri.parse(API.getSearchResults),
         body: {
-          'user_id' : currentOnlineUser.user.user_email,
-        }
+          'search' : widget.searchController?.text,
+        },
       );
       if(res.statusCode == 200){
         var resBody = jsonDecode(res.body);
-        if(resBody['success'] == true){
-          if((resBody['currentUserFavouriteData'] as List).isNotEmpty){
-            (resBody['currentUserFavouriteData'] as List).forEach((element) {
-              favouriteListCurrentUser.add(Favourite.fromJson(element));
-            });
-          }
-        }else if(resBody['success'] == false){;
+        if(resBody["success"] == true){
+          if((resBody["itemsData"] as List).isEmpty) return result;
+          (resBody["itemsData"] as List).forEach((element) {
+            result.add(Item.fromJson(element));
+          });
+        }else{
+          Fluttertoast.showToast(msg: "Search Error");
         }
+      }else{
+        Fluttertoast.showToast(msg: "Server Error");
       }
     }catch(e){
       print(e);
     }
-    return favouriteListCurrentUser;
+    return result;
   }
+  Widget showSearchBarWidget() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: TextField(
+        style: const TextStyle(color: Colors.black),
+        decoration: InputDecoration(
+          prefixIcon: IconButton(
+            onPressed: (){
+              //todo: reload screen using search functionality
+              setState(() {
+                searchresults();
+              });
+            },
+            icon: const Icon(Icons.search,color: Colors.purple,),
+          ),
+          hintText: "Search",
+          hintStyle: const TextStyle(color: Colors.grey),
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 1,
+              color: Colors.black,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 1,
+              color: Colors.black,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 1,
+              color: Colors.black,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+          ),
+        ),
+        controller: widget.searchController,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Center(child: Text('Favourites',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),),),
-        automaticallyImplyLeading: false,
+        title: const Center(child: Text("Home",style: TextStyle(color: Colors.white),)),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: const EdgeInsets.fromLTRB(16,16,0,0),
-              child: Text(
-                "Following Items are bookmarked by user",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const SizedBox(height:24),
-            //todo: display favourite list
-            favouriteListItemWidget(context),
-          ],
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 10,),
+          showSearchBarWidget(),
+          SingleChildScrollView(
+            child: allItemWidget(context),
+          ),
+        ],
       ),
     );
   }
-
-  Widget favouriteListItemWidget(context){
+  Widget allItemWidget(context){
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return FutureBuilder(
-        future: readFavourites(),
+        future: searchresults(),
         builder: (context, AsyncSnapshot<List> dataSnapshot){
           if(dataSnapshot.connectionState == ConnectionState.waiting){
             return const Center(child: CircularProgressIndicator());
           }
-          if(dataSnapshot.data!.isEmpty){
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: MediaQuery.sizeOf(context).height/3,horizontal: 0),
-              child: const Center(child: Text("No Favourite Items",style: TextStyle(color: Colors.grey),)),
-            );
+          if(dataSnapshot.data == null){
+            return const Text("No Items");
           }
           if(dataSnapshot.data!.length > 0){
             return ListView.builder(
@@ -144,8 +134,7 @@ class FavouriteFragmentScreen extends StatelessWidget {
                   var eachItem = dataSnapshot.data![index];
                   return GestureDetector(
                       onTap: (){
-                        //todo: fix the updation of favourites post update
-                          Get.to(ItemDetailsScreen(eachItem));
+                        Get.to(ItemDetailsScreen(eachItem));
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(14.0),

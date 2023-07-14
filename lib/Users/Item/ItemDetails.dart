@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:pizzeria/Users/Cart/cart_screen.dart';
 import 'package:pizzeria/Users/Controllers/Item_details_controller.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -18,6 +19,73 @@ class ItemDetailsScreen extends StatefulWidget {
 class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
   final itemDetailsController = Get.put(ItemDetailsController());
   final currentOnlineUser = Get.put(currentUser());
+  validateFavouriteList() async {
+    try{
+      var res = await http.post(
+        Uri.parse(API.validateFavourite),
+        body: {
+          "user_id":currentOnlineUser.user.user_email.toString(),
+          "item_id":widget.itemDetail!.item_id.toString(),
+        },
+      );
+      if(res.statusCode == 200){
+        var resBody = jsonDecode(res.body);
+        if(resBody['success']==true){
+          itemDetailsController.setFavoriteItem(true);
+          Fluttertoast.showToast(msg: "In Favourites");
+        }else if(resBody['success']==false){
+          itemDetailsController.setFavoriteItem(false);
+          Fluttertoast.showToast(msg: "Not In Favourites");
+        }
+      }
+    }catch(e){
+      print(e);
+    }
+  }
+  addToFavouriteList() async {
+    try{
+      var res = await http.post(
+        Uri.parse(API.addFavourite),
+        body: {
+          "user_id":currentOnlineUser.user.user_email.toString(),
+          "item_id":widget.itemDetail!.item_id.toString(),
+        },
+      );
+      if(res.statusCode == 200){
+        var resBody = jsonDecode(res.body);
+        if(resBody['success']==true){
+          Fluttertoast.showToast(msg: "Item Added To Favourites");
+          validateFavouriteList();
+        }else if(resBody['success']==false){
+          Fluttertoast.showToast(msg: "Server Error");
+        }
+      }
+    }catch(e){
+      print(e);
+    }
+  }
+  deleteFromFavouriteList() async {
+    try{
+      var res = await http.post(
+        Uri.parse(API.deleteFavourite),
+        body: {
+          "user_id":currentOnlineUser.user.user_email.toString(),
+          "item_id":widget.itemDetail!.item_id.toString(),
+        },
+      );
+      if(res.statusCode == 200){
+        var resBody = jsonDecode(res.body);
+        if(resBody['success']==true){
+          Fluttertoast.showToast(msg: "Item Removed From Favourites");
+          validateFavouriteList();
+        }else if(resBody['success']==false){
+          Fluttertoast.showToast(msg: "Server Error");
+        }
+      }
+    }catch(e){
+      print(e);
+    }
+  }
   addItemToCart()async{
     try{
       var res = await http.post(
@@ -290,6 +358,11 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     );
   }
   @override
+  void initState() {
+    super.initState();
+    validateFavouriteList();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -314,6 +387,34 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: itemInfoWidget(),
+          ),
+          //todo: favorite add , shopping cart redirect , back
+          Positioned(
+            top: MediaQuery.of(context).padding.top,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
+                children: [
+                  IconButton(onPressed: (){Get.back();}, icon: const Icon(Icons.arrow_back_ios_new,color: Colors.lightBlueAccent,)),
+                  const Spacer(),
+                  Obx(()=> IconButton(onPressed: (){
+                      if(itemDetailsController.isFavorite){
+                        // delete from db user favorites
+                        deleteFromFavouriteList();
+                      }else{
+                        // add into db user favorites
+                        addToFavouriteList();
+                      }
+                    }, icon: Icon(itemDetailsController.isFavorite?Icons.bookmark:Icons.bookmark_outline),),
+                  ),
+                  IconButton(onPressed: (){
+                    Get.to(CartListScreen());
+                  }, icon: const Icon(Icons.shopping_cart)),
+                ],
+              ),
+            ),
           )
         ],
       ),

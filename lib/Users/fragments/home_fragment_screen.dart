@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pizzeria/Users/Cart/cart_screen.dart';
 import 'package:pizzeria/Users/Item/ItemDetails.dart';
+import 'package:pizzeria/Users/fragments/search_fragment.dart';
 import 'package:pizzeria/Users/model/item.dart';
 import 'package:http/http.dart' as http;
 import 'package:pizzeria/api_connection/api_connection.dart';
@@ -148,6 +149,7 @@ class _dropDown extends State<dropDown> {
 }
 
 class HomeFragmentScreen extends StatelessWidget {
+
   TextEditingController searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -194,7 +196,9 @@ class HomeFragmentScreen extends StatelessWidget {
         style: const TextStyle(color: Colors.black),
         decoration: InputDecoration(
           prefixIcon: IconButton(
-            onPressed: (){},
+            onPressed: (){
+              Get.to(SearchScreen(searchController));
+            },
             icon: const Icon(Icons.search,color: Colors.purple,),
           ),
           hintText: "Search",
@@ -423,7 +427,7 @@ class HomeFragmentScreen extends StatelessWidget {
           if(dataSnapshot.data!.length > 0){
             return ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: dataSnapshot.data!.length,
                 scrollDirection: Axis.vertical,
                 itemBuilder: (BuildContext context, int index){
