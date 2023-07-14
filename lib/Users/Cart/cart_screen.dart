@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:pizzeria/Users/model/cart.dart';
 import 'package:pizzeria/Users/model/item.dart';
+import 'package:pizzeria/Users/orderNow/orderNowScreen.dart';
 import 'package:pizzeria/api_connection/api_connection.dart';
 import 'package:pizzeria/user_preferences/current_user.dart';
 import 'package:pizzeria/Users/Controllers/cart_list_controller.dart';
@@ -21,9 +22,6 @@ class CartListScreen extends StatefulWidget {
 class _CartListScreenState extends State<CartListScreen> {
   final currentOnlineUser = Get.put(currentUser());
   final cartListController = Get.put(CartListController());
-  orderNow(var cartList){
-
-  }
   cartItemDeletion(int? cart_id)async{
     try{
       var res = await http.post(
@@ -152,6 +150,27 @@ class _CartListScreenState extends State<CartListScreen> {
     }
   }
 
+  List<Map<String,dynamic>> getSelectedCartListItemsInfo(){
+    List<Map<String,dynamic>> selectedCartListItemsInfo = [];
+    if(cartListController.selectedItem.isNotEmpty){
+      cartListController.cartList.forEach((element) {
+        if(cartListController.selectedItem.contains(element.cart_id)){
+          Map<String,dynamic> itemInfo = {
+            "item_id": element.item_id,
+            "name":element.pizza_name,
+            "image":element.image,
+            "style":element.style,
+            "size":element.size,
+            "quantity":element.quantity,
+            "totalAmount":element.price! * element.quantity!,
+          };
+          selectedCartListItemsInfo.add(itemInfo);
+        }
+      });
+    }
+    return selectedCartListItemsInfo;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -226,7 +245,13 @@ class _CartListScreenState extends State<CartListScreen> {
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
                       onTap: (){
-                        orderNow(cartListController.cartList);
+                        if(cartListController.selectedItem.length > 0){
+                          Get.to(OrderNowScreen(
+                            getSelectedCartListItemsInfo(),
+                            cartListController.total,
+                            cartListController.selectedItem,
+                          ));
+                        }
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 25,vertical: 10),
