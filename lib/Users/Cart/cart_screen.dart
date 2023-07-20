@@ -153,7 +153,7 @@ class _CartListScreenState extends State<CartListScreen> {
   List<Map<String,dynamic>> getSelectedCartListItemsInfo(){
     List<Map<String,dynamic>> selectedCartListItemsInfo = [];
     if(cartListController.selectedItem.isNotEmpty){
-      cartListController.cartList.forEach((element) {
+      for (var element in cartListController.cartList) {
         if(cartListController.selectedItem.contains(element.cart_id)){
           Map<String,dynamic> itemInfo = {
             "item_id": element.item_id,
@@ -166,7 +166,7 @@ class _CartListScreenState extends State<CartListScreen> {
           };
           selectedCartListItemsInfo.add(itemInfo);
         }
-      });
+      }
     }
     return selectedCartListItemsInfo;
   }
@@ -272,7 +272,7 @@ class _CartListScreenState extends State<CartListScreen> {
         },
       ),
       body: Obx(
-        () => cartListController.cartList.length > 0
+        () => cartListController.cartList.isNotEmpty
             ? ListView.builder(
                 itemCount: cartListController.cartList.length,
                 scrollDirection: Axis.vertical,
